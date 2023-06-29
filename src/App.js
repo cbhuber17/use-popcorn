@@ -323,6 +323,15 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
     [selectedId] // As the movie changes by clicking in the left box, the right box will display the details.  When this is empty [], with one movie selected, can't select another one to display in the right box (without closing the box)
   );
 
+  // Change browser tab title
+  useEffect(
+    function () {
+      if (!title) return;
+      document.title = `Movie | ${title}`;
+    },
+    [title]
+  );
+
   return (
     <div className="details">
       {isLoading ? (
