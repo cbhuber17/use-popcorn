@@ -98,12 +98,16 @@ export default function App() {
   // Only run once using useEffect when the App() component is mounted
   useEffect(
     function () {
+      // Kill API requests as part of cleaning up useEffect()
+      const controller = new AbortController();
+
       async function fetchMovies() {
         try {
           setIsLoading(true);
           setError("");
           const res = await fetch(
-            `http://www.omdbapi.com/?apikey=${process.env.REACT_APP_OMDB_API_KEY}&s=${query}`
+            `http://www.omdbapi.com/?apikey=${process.env.REACT_APP_OMDB_API_KEY}&s=${query}`,
+            { signal: controller.signal }
           );
 
           if (!res.ok)
@@ -112,9 +116,12 @@ export default function App() {
           const data = await res.json();
           if (data.Response === "False") throw new Error("Movie not found");
           setMovies(data.Search);
+          setError("");
         } catch (err) {
           console.error(err.message);
-          setError(err.message);
+          if (err.name !== "AbortError") {
+            setError(err.message);
+          }
         } finally {
           setIsLoading(false);
         }
@@ -127,6 +134,10 @@ export default function App() {
       }
 
       fetchMovies();
+
+      return function () {
+        controller.abort();
+      };
     },
     [query]
   ); // Effect only runs on mount when empty [].  Effect runs only when query is changed.
@@ -328,6 +339,12 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
     function () {
       if (!title) return;
       document.title = `Movie | ${title}`;
+
+      // Cleanup function
+      // Set tab title back to default
+      return function () {
+        document.title = "usePopcorn";
+      };
     },
     [title]
   );
