@@ -13,6 +13,7 @@ export default function App() {
   // Executed once on initial render to get watched movie data from browser local storage
   const [watched, setWatched] = useState(function () {
     const storedValue = localStorage.getItem("watched");
+    if (!storedValue) return [];
     return JSON.parse(storedValue);
   });
   const [isLoading, setIsLoading] = useState(false);
