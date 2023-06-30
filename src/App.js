@@ -196,9 +196,24 @@ function Search({ query, setQuery }) {
 
   // Put the cursor over the search bar upon page load/render
   // useEffect is the place to use useRefs
-  useEffect(function () {
-    inputEl.current.focus();
-  }, []);
+  useEffect(
+    function () {
+      // Callback to set the focus only on pressing enter
+      function callback(e) {
+        if (document.activeElement === inputEl.current) return;
+
+        if (e.code === "Enter") {
+          inputEl.current.focus();
+          setQuery("");
+        }
+      }
+
+      document.addEventListener("keydown", callback);
+
+      return () => document.addEventListener("keydown", callback);
+    },
+    [setQuery]
+  );
 
   // Don't do this, use useRef()
   // useEffect(function () {
@@ -437,7 +452,7 @@ function WatchedSummary({ watched }) {
         </p>
         <p>
           <span>⏳</span>
-          <span>{avgRuntime} min</span>
+          <span>{avgRuntime.toFixed(2)} min</span>
         </p>
       </div>
     </div>
