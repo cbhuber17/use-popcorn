@@ -52,7 +52,7 @@ export function useMovies(query, callback) {
         controller.abort();
       };
     },
-    [query]
+    [query, callback]
   ); // Effect only runs on mount when empty [].  Effect runs only when query is changed.
 
   return { movies, isLoading, error };
