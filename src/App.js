@@ -2,6 +2,7 @@ import { useEffect, useRef, useCallback, useState } from "react";
 import StarRating from "./StarRating";
 import { useMovies } from "./useMovies";
 import { useLocalStorageState } from "./useLocalStorageState";
+import { useKey } from "./useKey";
 
 const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
@@ -135,35 +136,19 @@ function Search({ query, setQuery }) {
   // Default for DOM elements
   const inputEl = useRef(null);
 
-  // Put the cursor over the search bar upon page load/render
-  // useEffect is the place to use useRefs
-  useEffect(
-    function () {
-      // Upon page load, put cursor in search bar
-      inputEl.current.focus();
-
-      // Callback to set the focus only on pressing enter
-      function callback(e) {
-        if (document.activeElement === inputEl.current) return;
-
-        if (e.code === "Enter") {
-          inputEl.current.focus();
-          setQuery("");
-        }
-      }
-
-      document.addEventListener("keydown", callback);
-
-      return () => document.addEventListener("keydown", callback);
-    },
-    [setQuery]
-  );
-
-  // Don't do this, use useRef()
+  // Don't do this for DOM access, use useRef() above
   // useEffect(function () {
   //   const el = document.querySelector(".search");
   //   el.focus();
   // }, []);
+
+  // Put the cursor over the search bar upon page load/render
+  // useEffect is the place to use useRefs
+  useKey("Enter", function () {
+    if (document.activeElement === inputEl.current) return;
+    inputEl.current.focus();
+    setQuery("");
+  });
 
   return (
     <input
@@ -275,24 +260,7 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
   }
 
   // DOM manipulation, close right box when ESC key is pressed
-  useEffect(
-    function () {
-      // Callback to check if escape key is pressed
-      function escCallback(e) {
-        if (e.code === "Escape") {
-          onCloseMovie();
-        }
-      }
-
-      document.addEventListener("keydown", escCallback);
-
-      // Cleanup to remove event listener
-      return function () {
-        document.removeEventListener("keydown", escCallback);
-      };
-    },
-    [onCloseMovie]
-  );
+  useKey("Escape", onCloseMovie);
 
   useEffect(
     function () {
