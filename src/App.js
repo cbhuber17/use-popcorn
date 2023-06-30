@@ -1,6 +1,7 @@
 import { useEffect, useRef, useCallback, useState } from "react";
 import StarRating from "./StarRating";
 import { useMovies } from "./useMovies";
+import { useLocalStorageState } from "./useLocalStorageState";
 
 const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
@@ -8,19 +9,10 @@ const average = (arr) =>
 // Structural component
 export default function App() {
   const [query, setQuery] = useState("");
-  // const [watched, setWatched] = useState([]);
-
-  // Executed once on initial render to get watched movie data from browser local storage
-  const [watched, setWatched] = useState(function () {
-    const storedValue = localStorage.getItem("watched");
-    if (!storedValue) return [];
-    return JSON.parse(storedValue);
-  });
-
+  const [watched, setWatched] = useLocalStorageState([], "watched");
   const [selectedId, setSelectedID] = useState(null);
 
   /*
-
   // The following useEffect/code is run when:
   useEffect(function() {
     console.log("After initial render");
@@ -57,13 +49,6 @@ export default function App() {
   function handleDeleteWatched(id) {
     setWatched((watched) => watched.filter((movie) => movie.imdbID !== id));
   }
-
-  useEffect(
-    function () {
-      localStorage.setItem("watched", JSON.stringify(watched));
-    },
-    [watched]
-  );
 
   // Close the right box when new search is done, done via handleCloseMovie
   const { movies, isLoading, error } = useMovies(query, handleCloseMovie);
