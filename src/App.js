@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useCallback, useState } from "react";
 import StarRating from "./StarRating";
+import { useMovies } from "./useMovies";
 
 const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
@@ -7,7 +8,6 @@ const average = (arr) =>
 // Structural component
 export default function App() {
   const [query, setQuery] = useState("");
-  const [movies, setMovies] = useState([]);
   // const [watched, setWatched] = useState([]);
 
   // Executed once on initial render to get watched movie data from browser local storage
@@ -16,8 +16,7 @@ export default function App() {
     if (!storedValue) return [];
     return JSON.parse(storedValue);
   });
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+
   const [selectedId, setSelectedID] = useState(null);
 
   /*
@@ -43,9 +42,12 @@ export default function App() {
     setSelectedID((selectedId) => (id === selectedId ? null : id));
   }
 
-  function handleCloseMovie() {
-    setSelectedID(null);
-  }
+  // Should be done with useCallback below so it can be passed into useMovies (user defined) hook
+  // function handleCloseMovie() {
+  //   setSelectedID(null);
+  // }
+
+  const handleCloseMovie = useCallback(() => setSelectedID(null), []);
 
   function handleAddWatched(movie) {
     setWatched((watched) => [...watched, movie]);
@@ -63,55 +65,8 @@ export default function App() {
     [watched]
   );
 
-  // Only run once using useEffect when the App() component is mounted
-  useEffect(
-    function () {
-      // Kill API requests as part of cleaning up useEffect()
-      const controller = new AbortController();
-
-      async function fetchMovies() {
-        try {
-          setIsLoading(true);
-          setError("");
-          const res = await fetch(
-            `https://www.omdbapi.com/?apikey=${process.env.REACT_APP_OMDB_API_KEY}&s=${query}`,
-            { signal: controller.signal }
-          );
-
-          if (!res.ok)
-            throw new Error("Something went wrong with fetching movies.");
-
-          const data = await res.json();
-          if (data.Response === "False") throw new Error("Movie not found");
-          setMovies(data.Search);
-          setError("");
-        } catch (err) {
-          if (err.name !== "AbortError") {
-            console.log(err.message);
-            setError(err.message);
-          }
-        } finally {
-          setIsLoading(false);
-        }
-      }
-
-      if (query.length < 3) {
-        setMovies([]);
-        setError("");
-        return;
-      }
-
-      // Close the right box when new search is done
-      handleCloseMovie();
-
-      fetchMovies();
-
-      return function () {
-        controller.abort();
-      };
-    },
-    [query]
-  ); // Effect only runs on mount when empty [].  Effect runs only when query is changed.
+  // Close the right box when new search is done, done via handleCloseMovie
+  const { movies, isLoading, error } = useMovies(query, handleCloseMovie);
 
   return (
     <>
