@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import StarRating from "./StarRating";
 
 const average = (arr) =>
@@ -191,6 +191,21 @@ function Logo() {
 
 // Stateful component
 function Search({ query, setQuery }) {
+  // Default for DOM elements
+  const inputEl = useRef(null);
+
+  // Put the cursor over the search bar upon page load/render
+  // useEffect is the place to use useRefs
+  useEffect(function () {
+    inputEl.current.focus();
+  }, []);
+
+  // Don't do this, use useRef()
+  // useEffect(function () {
+  //   const el = document.querySelector(".search");
+  //   el.focus();
+  // }, []);
+
   return (
     <input
       className="search"
@@ -198,6 +213,7 @@ function Search({ query, setQuery }) {
       placeholder="Search movies..."
       value={query}
       onChange={(e) => setQuery(e.target.value)}
+      ref={inputEl}
     />
   );
 }
