@@ -199,6 +199,9 @@ function Search({ query, setQuery }) {
   // useEffect is the place to use useRefs
   useEffect(
     function () {
+      // Upon page load, put cursor in search bar
+      inputEl.current.focus();
+
       // Callback to set the focus only on pressing enter
       function callback(e) {
         if (document.activeElement === inputEl.current) return;
