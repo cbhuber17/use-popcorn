@@ -140,6 +140,7 @@ body {
     justify-self: end;
   }
   @media (max-width: 900px) {
+    padding: 6px 0;
     justify-self: center;
   }
   font-size: 1.8rem;
@@ -255,17 +256,30 @@ body {
   }
 
   div {
-    display: flex;
-    align-items: center;
-    gap: 2.4rem;
+    @media (min-width: 900px) {
+      display: flex;
+      align-items: center;
+      gap: 2.4rem;
+    }
+    @media (max-width: 900px) {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
     font-size: 1.6rem;
     font-weight: 600;
   }
 
   p {
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
+    @media (min-width: 900px) {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    @media (max-width: 900px) {
+      text-align: center;
+      padding: 5px;
+    }
   }
 }
 
